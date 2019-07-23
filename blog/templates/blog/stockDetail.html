@@ -1,0 +1,54 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+<div class="list-group-item list-group-item-info">
+    <h2 class="text-black">Your Wishlist</h2>
+    
+</div>
+<div class="card">
+    <div class="card-body">
+        <h3>{{ symbol }}</h3>
+        <h5 class="text-muted">Time Series : {{timeseries}}</h5>
+        <div class="d-flex justify-content-between">
+            <form action="{% url 'stock-detail' %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="id" value="{{id}}">
+                <input type="hidden" name="symbol" value="{{symbol}}">
+                <select name="timeseries">
+                    <option value="TIME_SERIES_INTRADAY">Intraday</option>
+                    <option value="TIME_SERIES_DAILY">Daily</option>
+                    <option value="TIME_SERIES_WEEKLY">Weekly</option>
+                    <option value="TIME_SERIES_MONTHLY">Monthly</option>
+                    </select>
+                    <input class = "btn btn-info m-3" type="submit" value="Change TimeSeries">
+            </form>
+            <form action="{% url 'delete-stock' %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="id" value="{{id}}">
+                <input class = "btn btn-danger float-right m-3" type="submit" value="Delete Stock">
+            </form>
+        </div>
+        <table class="table">
+            <tr>
+                <td>Time</td>
+                <td>Open</td>
+                <td>High</td>
+                <td>Low</td>
+                <td>Close</td>
+                <td>Volume</td>
+            </tr>
+            {% for openCloseData in openClose %}
+            <tr>
+                <td>{{ openCloseData.date}}</td>
+                <td>{{ openCloseData.open }}</td>
+                <td>{{ openCloseData.high }}</td>
+                <td>{{ openCloseData.low }}</td>
+                <td>{{ openCloseData.close }}</td>
+                <td>{{ openCloseData.volume }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        
+    </div>
+</div>
+{% endblock content %}

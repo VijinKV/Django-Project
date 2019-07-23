@@ -1,0 +1,53 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+<div class="list-group-item list-group-item-info">
+    <h2 class="text-black">Your Wishlist</h2>
+    
+</div>
+<a class="btn btn-success d-flex justify-content-center" href="{% url 'add-stock-page' %}">Add Stock</a>
+{% if wishlists|length %}
+
+    <!-- 'wishlists' variable contains Symbol, price, time-stamp and stock row ID -->
+    {% for wishlist in wishlists reversed %}
+    <div class="card">
+        <div class="card-body">
+            <h3>{{ wishlist.symbol }}</h3>
+            <h5 class="text-muted">Stock Details : </h5>
+            <table class="table">
+                <tr>
+                    <td>Symbol</td>
+                    <td>Price</td>
+                    <td>Time-stamp</td>
+                </tr>
+                <tr>
+                    <td>{{ wishlist.symbol }}</td>
+                    <td>{{ wishlist.price }}</td>
+                    <td>{{ wishlist.timeStamp }}</td>
+                </tr>
+            </table>
+            
+            <form action="{% url 'delete-stock' %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="id" value="{{wishlist.id}}">
+                <input class = "btn btn-danger float-right m-1" type="submit" value="Delete Stock">
+            </form>
+            <form action="{% url 'stock-detail' %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="id" value="{{wishlist.id}}">
+                <input type="hidden" name="symbol" value="{{wishlist.symbol}}">
+                <input type="hidden" name="timeseries" value="TIME_SERIES_INTRADAY">
+                <input class = "btn btn-info float-right m-1" type="submit" value="View Stock">
+            </form>
+            
+        </div>
+    </div>
+    {% endfor %}
+
+{% else %}
+    <h3 class="alert alert-danger m-3">
+        Empty Wishlist!! add stocks detail by clicking "ADD STOCK" button
+    </h3>
+{% endif %}
+
+{% endblock content %}
