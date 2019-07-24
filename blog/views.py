@@ -51,13 +51,11 @@ def getStockPrice(symbol,stockID):
 
     URL = 'https://www.alphavantage.co/query?'
 
-    PARAMS = {#PARAMS for only Intraday on 1min chart
+    PARAMS = {#Stock price in batch
         'function' : 'BATCH_STOCK_QUOTES',
         'apikey' : API_key,   
         'symbols' : symbol
     }
-
-
     res = rqst.get(URL,PARAMS)
     data = res.json()
 
@@ -68,7 +66,6 @@ def getStockPrice(symbol,stockID):
         print('#####################################################################################################################')
         print(data)#for debugging in cmd/console
         return True
-    
     
     stockIter = list(data['Stock Quotes'])
     AllStockDetail = []
