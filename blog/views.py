@@ -10,6 +10,40 @@ from django.db import IntegrityError
 from django.contrib import messages
 import time
 
+
+
+@login_required
+def deleteStock(request):
+    if request.method == "POST":
+        request.POST['id']
+        Stocks.objects.filter(id=request.POST['id']).delete()
+        return redirect('/')
+
+@login_required
+def addStock(request):
+    if request.method == "POST":
+        passedTimeSeries = 'TIME_SERIES_INTRADAY'
+        passedSymbol = request.POST['symbol']
+        passedSymbol = passedSymbol.upper()
+        isValidSymbol = getStockDetails(passedTimeSeries,passedSymbol,"")
+
+        #Apla vanatge allow 5 request per minunte.. Hence waiting for a minute
+        while isValidSymbol==True:
+            time.sleep(15)
+            isValidSymbol = getStockDetails(passedTimeSeries,passedSymbol,"")
+        if isValidSymbol:
+            try :
+                addStock = Stocks(symbol = passedSymbol, user = request.user)
+                addStock.save()
+                return redirect('/')
+
+            except IntegrityError as e: 
+                messages.error(request,'Already Exist!')
+        else :
+            messages.error(request,'Invalid Symbol')
+            return redirect('/stock_add_menu')
+    return redirect('/')
+
 # Create your views here.
 API_key = '2Z86GUWAX98UV2IH'
 
@@ -51,6 +85,18 @@ def getStockPrice(symbol,stockID):
         AllStockDetail.append(stockDetails)
 
     return AllStockDetail
+
+def validResStocks(stockSymbol,stockID):
+    #getStockDetail func will return a dictionary value with open, high, low, close and volume etc. 
+    #if the function is over used the function will return true
+    isOverRequested = getStockPrice(stockSymbol,stockID)
+
+    #Apla vanatge allow 5 request per minunte.. Hence waiting for a minute
+    while isOverRequested == True:
+        time.sleep(15)
+        isOverRequested = getStockPrice(stockSymbol,stockID)
+
+    return isOverRequested
 
 def getStockDetails(timeseries,symbol,stockID):
 
@@ -107,50 +153,6 @@ def getStockDetails(timeseries,symbol,stockID):
     
     stockDetails['openClose']=openCloseData
     return stockDetails
-
-@login_required
-def deleteStock(request):
-    if request.method == "POST":
-        request.POST['id']
-        Stocks.objects.filter(id=request.POST['id']).delete()
-        return redirect('/')
-
-@login_required
-def addStock(request):
-    if request.method == "POST":
-        passedTimeSeries = 'TIME_SERIES_INTRADAY'
-        passedSymbol = request.POST['symbol']
-        passedSymbol = passedSymbol.upper()
-        isValidSymbol = getStockDetails(passedTimeSeries,passedSymbol,"")
-
-        #Apla vanatge allow 5 request per minunte.. Hence waiting for a minute
-        while isValidSymbol==True:
-            time.sleep(15)
-            isValidSymbol = getStockDetails(passedTimeSeries,passedSymbol,"")
-        if isValidSymbol:
-            try :
-                addStock = Stocks(symbol = passedSymbol, user = request.user)
-                addStock.save()
-                return redirect('/')
-
-            except IntegrityError as e: 
-                messages.error(request,'Already Exist!')
-        else :
-            messages.error(request,'Invalid Symbol')
-            return redirect('/stock_add_menu')
-    return redirect('/')
-
-def validResStocks(stockSymbol,stockID):
-    #getStockDetail func will return a dictionary value with open, high, low, close and volume etc. 
-    #if the function is over used the function will return true
-    isOverRequested = getStockPrice(stockSymbol,stockID)
-
-    #Apla vanatge allow 5 request per minunte.. Hence waiting for a minute
-    while isOverRequested == True:
-        time.sleep(15)
-        isOverRequested = getStockPrice(stockSymbol,stockID)
-
-    return isOverRequested
 
 def validResDetail(timeseries,stockSymbol,stockID):
     #getStockDetail func will return a dictionary value with open, high, low, close and volume etc. 
